@@ -1,0 +1,19 @@
+{
+  "name": "Hádankový svět – rodinná dobrodružství",
+  "short_name": "Hádankový svět",
+  "description": "Hádanky, výpravy a hry pro děti s rodiči",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3e4ff",
+  "theme_color": "#9460c8",
+  "lang": "cs",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
