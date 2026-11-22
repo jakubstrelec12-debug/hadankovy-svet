@@ -1,0 +1,12 @@
+name = "hadankovy-ai"
+main = "worker.js"
+compatibility_date = "2026-11-22"
+
+[vars]
+DAILY_LIMIT = "5"
+OPENAI_MODEL = "gpt-4.1-mini"
+
+# KV namespace LIMITS se přidává v Cloudflare dashboardu:
+# Workers & Pages > hadankovy-ai > Settings > Bindings > Add > KV namespace
+# Variable name: LIMITS
+# OPENAI_API_KEY přidejte jako secret (nikdy sem do souboru).
