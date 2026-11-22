@@ -6,6 +6,21 @@ const get=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return
 const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}};
 const randomize=a=>{const x=[...a];for(let i=x.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]]}return x};
 let active=null,choices=[],current=0,completed=[],usedProfiles=[],packKey=null,showHint=false,showAdvanced=false;
+const activeKey='hs-adventure-active-v1';
+function persist(){
+ if(!packKey||!choices.length)return;
+ save(activeKey,{packKey,choices:choices.map(q=>q.id),current,completed,usedProfiles:usedProfiles.map(p=>p.id),timestamp:Date.now()});
+}
+function clearPersist(){try{localStorage.removeItem(activeKey)}catch{}}
+function resume(){
+ const old=get(activeKey,null);if(!old||!D.packs[old.packKey]||!Array.isArray(old.choices))return packs();
+ const list=old.choices.map(id=>D.tasks.find(t=>t.id===id));
+ if(list.some(x=>!x)||!list.length)return packs();
+ packKey=old.packKey;choices=list;current=Math.min(Math.max(0,Number(old.current)||0),list.length-1);
+ completed=Array.isArray(old.completed)?old.completed.filter(id=>list.some(t=>t.id===id)):[];
+ usedProfiles=profiles().filter(p=>Array.isArray(old.usedProfiles)&&old.usedProfiles.includes(p.id));
+ render();
+}
 function profiles(){const x=get('hs-profiles-v1',[]);return Array.isArray(x)?x.filter(p=>p&&p.id&&p.name):[]}
 function activeProfiles(){const ps=profiles(),ids=get('hs-selected-v1',[]);return ps.filter(p=>Array.isArray(ids)&&ids.includes(p.id))}
 function packs(){
@@ -16,7 +31,7 @@ function packs(){
  const n=D.tasks.filter(t=>t.pack===id).length;
  html+='<button class="adventure-card" onclick="advChoose(\''+id+'\')"><span class="adv-icon">'+p.icon+'</span><strong>'+esc(p.title)+'</strong><small>'+esc(p.where)+' · '+n+' úkolů</small></button>';
  }
- html+='</div><button class="action secondary" onclick="hsHome()">← Zpět k hádankám</button></div>';screen.innerHTML=html;
+ html+='</div>';const unfinished=get(activeKey,null);if(unfinished?.choices?.length&&D.packs[unfinished.packKey])html+='<button class="action" onclick="advResume()">▶ Pokračovat v rozpracované výpravě</button>';html+='<button class="action secondary" onclick="hsHome()">← Zpět k hádankám</button></div>';screen.innerHTML=html;
 }
 function choose(id){
  if(!D.packs[id])return packs();packKey=id;
@@ -33,7 +48,7 @@ function start(){
  let pick=fresh.slice(0,take),stored=Array.isArray(already)?already:[];
  if(pick.length<take){pick=pick.concat(randomize(all.filter(t=>!pick.some(q=>q.id===t.id))).slice(0,take-pick.length));stored=[]}
  save(seenKey,[...new Set([...stored,...pick.map(t=>t.id)])]);
- choices=pick;current=0;completed=[];usedProfiles=activeProfiles();render();
+ choices=pick;current=0;completed=[];usedProfiles=activeProfiles();persist();render();
 }
 function render(){
  const p=D.packs[packKey],t=choices[current];
@@ -54,11 +69,11 @@ function displayHelp(){
  if(showAdvanced)text+='<p><b>Pro starší děti:</b> '+esc(task.challenge)+'</p>';
  document.getElementById('adv-help').innerHTML=text;
 }
-function complete(){completed.push(choices[current].id);advance()}
+function complete(){completed.push(choices[current].id);persist();advance()}
 function skip(){advance()}
-function advance(){if(current===choices.length-1)finish();else{current++;render()}}
+function advance(){if(current===choices.length-1)finish();else{current++;persist();render()}}
 function finish(){
- const p=D.packs[packKey],all=get('hs-adventure-progress-v1',{}),s=all[packKey]||{completed:0,missions:0};
+ clearPersist();const p=D.packs[packKey],all=get('hs-adventure-progress-v1',{}),s=all[packKey]||{completed:0,missions:0};
  s.completed++;s.missions+=completed.length;s.last=new Date().toISOString();all[packKey]=s;save('hs-adventure-progress-v1',all);
  const st=get('hs-adventure-child-v1',{});
  for(const child of usedProfiles){const c=st[child.id]||{trips:0,tasks:0};c.trips++;c.tasks+=completed.length;st[child.id]=c}save('hs-adventure-child-v1',st);
@@ -66,8 +81,8 @@ function finish(){
  screen.innerHTML='<div class="end"><div class="hero">'+p.icon+'✨</div><h2>Výprava dokončena!</h2><p>'+esc(p.outro)+'</p><p class="subtle">Společně jste dokončili '+completed.length+' z '+choices.length+' úkolů. Důležité je dobrodružství, ne počet splněných úkolů.</p><button class="action" onclick="advChoose(\''+packKey+'\')">Nová výprava</button><button class="action secondary" onclick="advHome()">Všechna dobrodružství</button><button class="action secondary" onclick="advProgress()">Přehled výprav</button></div>';
 }
 function exit(){
- if(!confirm('Opravdu ukončit výpravu? Nedokončené úkoly se nezapočítají.'))return;
- packs();
+ if(!confirm('Výprava se uloží. Můžeš v ní později pokračovat. Vrátit se na výběr?'))return;
+ persist();packs();
 }
 function progress(){
  score.textContent='Naše dobrodružství';
@@ -78,5 +93,5 @@ function progress(){
  for(const [id,p] of Object.entries(D.packs))h+='<div class="own-line">'+p.icon+' '+esc(p.title)+'<span></span><strong>'+(global[id]?.completed||0)+'×</strong></div>';
  h+='<button class="action secondary" onclick="advHome()">← Zpět</button></div>';screen.innerHTML=h;
 }
-window.advHome=packs;window.advChoose=choose;window.advSetLength=setLength;window.advStart=start;window.advHint=hint;window.advChallenge=challenge;window.advComplete=complete;window.advSkip=skip;window.advExit=exit;window.advProgress=progress;
+window.advResume=resume;window.advHome=packs;window.advChoose=choose;window.advSetLength=setLength;window.advStart=start;window.advHint=hint;window.advChallenge=challenge;window.advComplete=complete;window.advSkip=skip;window.advExit=exit;window.advProgress=progress;
 })();
