@@ -1,3 +1,2 @@
-window.HADANKY_AI_CONFIG={endpoint:''};
-// Po nasazení backendu zadejte veřejnou HTTPS adresu Cloudflare Workeru.
-// Nikdy sem nevkládejte OpenAI API klíč.
+window.HADANKY_AI_CONFIG={endpoint:'https://hadankovy-ai.jakubstrelec12.workers.dev'};
+// Veřejná adresa serveru (nikdy API klíč). Gemini klíč zůstává pouze v Cloudflare Secret.
