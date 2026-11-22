@@ -67,10 +67,16 @@ function hsDraw(p,n){
  save(key,[...new Set([...history,...chosen.map(q=>q.id)])]);
  return chosen.map(q=>({...q,who:p.id,options:hsOptions(q)}));
 }
+const answerEmoji={
+'pes':'🐶','kočka':'🐱','slon':'🐘','slepice':'🐔','žirafa':'🦒','zebra':'🦓','zajíc':'🐇','žába':'🐸','šnek':'🐌','ježek':'🦔','kráva':'🐮','kůň':'🐴','ryba':'🐟','včela':'🐝','sova':'🦉','štěně':'🐕','hříbě':'🐴','kotě':'🐈','jehně':'🐑','bobr':'🦫','papoušek':'🦜','želva':'🐢','motýl':'🦋','pavouk':'🕷️','kohout':'🐓','jelen':'🦌','tele':'🐄','kachna':'🦆','lev':'🦁','ovce':'🐑','králík':'🐰','cvrček':'🦗','vlaštovka':'🐦','káče':'🦆','karkulka':'👧','červená karkulka':'👧','popelce':'👸','popelka':'👸','ježibaba':'🧙','princezna':'👸','víla':'🧚','korunku':'👑','korunu':'👑','na koštěti':'🧹','poklad':'💰','princ':'🤴','sněhurka':'👸','locika':'👩','mořská panna':'🧜‍♀️','čarodějnice':'🧙‍♀️','jablko':'🍎','perník':'🍪','sklenice':'🥛','slunce':'☀️','sníh':'❄️','duha':'🌈','voda':'💧','listy':'🍃','listí':'🍂','vítr':'💨','květiny':'🌸','vzduch':'🌬️','rostlina':'🌱','jaro':'🌷','léto':'☀️','podzim':'🍁','les':'🌳','led':'🧊','déšť':'🌧️','moře':'🌊','řeka':'🏞️','mrak':'☁️','rosa':'💦','dub':'🌳','smrk':'🌲','měsíc':'🌙','písek':'🏖️','hračky':'🧸','mýdlo':'🧼','klíč':'🔑','klíčem':'🔑','kartáček':'🪥','deštník':'☂️','knihu':'📖','knížku':'📖','lžící':'🥄','vidličkou':'🍴','boty':'👟','rukavice':'🧤','čepici':'🧢','pyžamo':'🥼','hřebenem':'🪮','baterka':'🔦','světlo':'💡','hasič':'🚒','veterinář':'🩺','pošťák':'📮','pekař':'🥖','polštář':'🛏️','budík':'⏰','hodiny':'🕒','bezpečnostní pás':'🚗','dveře':'🚪','nízký':'📏','suchý':'🌵','pět':'5️⃣','šest':'6️⃣','sedm':'7️⃣','osm':'8️⃣','devět':'9️⃣','deset':'🔟','čtyři':'4️⃣','tři':'3️⃣','dvě':'2️⃣','jeden':'1️⃣','jedna':'1️⃣'};
+function emojiFor(text,cat){
+ const k=String(text).toLowerCase().trim();
+ return answerEmoji[k]||(/^\d+$/.test(k)?'🔢':null)||({zvirata:'🐾',pohadky:'🏰',pocitani:'🔢',priroda:'🌿',logika:'💡',kazdodenni:'🏠'})[cat]||'❔';
+}
 function hsOptions(q){
  let candidates=mix(lib.filter(x=>x.cat===q.cat&&x.level===q.level&&x.a.toLowerCase()!==q.a.toLowerCase()));
  let alternatives=[];for(const x of candidates){if(!alternatives.some(s=>s.toLowerCase()===x.a.toLowerCase()))alternatives.push(x.a);if(alternatives.length===3)break}
- return mix([{text:q.a,correct:true},...alternatives.map(text=>({text,correct:false}))]);
+ return mix([{text:q.a,correct:true,emoji:emojiFor(q.a,q.cat)},...alternatives.map(text=>({text,correct:false,emoji:emojiFor(text,q.cat)}))]);
 }
 function hsStart(){
  const ps=selected.map(find).filter(Boolean);if(!ps.length)return home();
