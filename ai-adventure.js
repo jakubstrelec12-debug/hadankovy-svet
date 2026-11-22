@@ -29,19 +29,19 @@ function builder(){
  html+=label('Děti')+(people.length?people.map(p=>'<label class="ai-person"><input type="checkbox" name="aiChild" value="'+esc(p.id)+'" '+(state.children.includes(p.id)?'checked':'')+'><span>'+esc(p.name)+' · '+p.age+' let · '+(p.level==='easy'?'lehké':'střední')+'</span></label>').join(''):'<p class="subtle">Nejdřív si na hlavní stránce přidej profil dítěte.</p>');
  html+=label('Styl příběhu')+'<div class="topic-grid">'+Object.entries(styles).map(([k,v])=>'<button class="choice '+(state.style===k?'active':'')+'" onclick="aiStyle(\''+k+'\')">'+v+'</button>').join('')+'</div>';
  html+=label('Počet úkolů')+'<div class="mode-row">'+[5,8,10,12,15].map(n=>'<button class="choice '+(state.count===n?'active':'')+'" onclick="aiCount('+n+')">'+n+'</button>').join('')+'</div>';
- if(!endpoint())html+='<p class="ai-notice">⚙ AI server ještě není připojen. Připravené výpravy můžeš prohlížet, ale nové AI generování bude možné po nasazení backendu.</p>';
+ if(!endpoint())html+='<p class="ai-notice">⚙ Gemini ještě není připojeno. Připravené výpravy můžeš prohlížet, ale nové AI generování bude možné po nasazení backendu.</p>';
  else html+='<p class="subtle">Při generování se cílové místo, nepovinný popis a věk vybraných dětí odešlou AI službě. Jména se nepředávají.</p>';
  html+='<p id="ai-error" class="form-error" aria-live="polite"></p>';
  html+='<button id="ai-generate" class="action launch" onclick="aiGenerate()" '+(!endpoint()||!people.length?'disabled':'')+'>✨ Vytvořit skutečnou AI výpravu</button>';
- html+='<div class="mode-row">'+button('📚 Uložené výpravy','aiLibrary()','secondary')+button('⚙ AI připojení','aiSettings()','secondary')+'</div>';
+ html+='<div class="mode-row">'+button('📚 Uložené výpravy','aiLibrary()','secondary')+button('⚙ Gemini připojení','aiSettings()','secondary')+'</div>';
  html+=button('← Zpět','hsHome()','secondary')+'</div>';
  S.innerHTML=html;
 }
 function style(s){saveInputs();state.style=s;builder()}
 function count(n){saveInputs();state.count=n;builder()}
 function settings(){
- saveInputs();H.textContent='AI připojení';
- S.innerHTML='<div class="welcome"><h2>⚙ AI server</h2><p class="subtle">API klíč sem nikdy nevkládej. Patří pouze na bezpečný server.</p>'+label('Adresa Cloudflare Workeru')+'<input id="aiEndpoint" placeholder="https://hadankovy-ai....workers.dev" value="'+esc(endpoint())+'"><p class="subtle">Používá se HTTPS server s koncovým bodem /generate. Nastavení se uloží pouze na tomto zařízení.</p><p id="ai-error" class="form-error"></p>'+button('Uložit adresu','aiSaveEndpoint()')+button('← Zpět','aiHome()','secondary')+'</div>';
+ saveInputs();H.textContent='Gemini připojení';
+ S.innerHTML='<div class="welcome"><h2>⚙ Google Gemini</h2><p class="subtle">Bezplatné Gemini generování vyžaduje jednorázové nasazení serveru. API klíč sem nikdy nevkládej – musí zůstat na bezpečném serveru.</p>'+label('Adresa Cloudflare Workeru')+'<input id="aiEndpoint" placeholder="https://hadankovy-ai....workers.dev" value="'+esc(endpoint())+'"><p class="subtle">Používá se HTTPS server s koncovým bodem /generate. Nastavení se uloží pouze na tomto zařízení.</p><p id="ai-error" class="form-error"></p>'+button('Uložit adresu','aiSaveEndpoint()')+button('← Zpět','aiHome()','secondary')+'</div>';
 }
 function saveEndpoint(){
  const text=document.getElementById('aiEndpoint').value.trim().replace(/\/$/,'');
