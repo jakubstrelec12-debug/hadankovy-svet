@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#9460c8"><title>Hádankový svět 🌙</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100dvh;padding:15px;display:grid;place-items:center;background:radial-gradient(circle at top left,#fff6d9,transparent 50%),#f3e4ff;font-family:system-ui,-apple-system,sans-serif;color:#49335d}main{width:min(100%,520px);min-height:min(740px,calc(100dvh - 30px));border-radius:30px;overflow:hidden;background:#fffafd;box-shadow:0 16px 55px #9e75bf40;display:flex;flex-direction:column}header{text-align:center;background:linear-gradient(110deg,#9260d0,#df88bd);color:white;padding:22px}h1{font-size:clamp(25px,6vw,34px);margin:0}header p{margin:6px}#score{font-weight:800;margin-top:8px}.body{flex:1;display:flex;flex-direction:column;padding:22px}.welcome,.end{flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;text-align:center}.welcome h2,.end h2{font-size:25px}.hero{text-align:center;font-size:65px;margin:20px 0 10px}.pick{display:flex;text-align:left;gap:15px;align-items:center;border:2px solid #e9d4f8;background:white;border-radius:21px;padding:16px;color:#49335d;font-size:19px;font-weight:800}.pick .face{font-size:44px}.pick small{font-size:13px;display:block;font-weight:500}.q{text-align:center;font-size:clamp(21px,5vw,27px);line-height:1.3;font-weight:850;min-height:75px;margin:8px 0 20px}.eyebrow{text-align:center;color:#8756af;font-weight:800;font-size:13px}.track{height:8px;border-radius:20px;background:#f0e2f7;margin:12px 0;overflow:hidden}.fill{height:100%;background:#d68bc9}.options{display:grid;grid-template-columns:1fr 1fr;gap:12px}.option{min-height:105px;background:#fff;border:2px solid #eee0f4;border-radius:19px;padding:10px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-weight:800;font-size:16px;color:#503861}.emoji{font-size:40px}.correct{background:#e6fbe6;border-color:#6ec388}.wrong{background:#ffebeb;border-color:#e9a5a5}.note{min-height:48px;text-align:center;padding:13px 4px;color:#82559b;font-weight:750}.actions{margin-top:auto;display:flex;gap:8px}.action{padding:12px 9px;flex:1;min-height:46px;border:0;border-radius:15px;background:#925bcd;color:#fff;font-size:14px;font-weight:800}.action.secondary{background:#f0e3f9;color:#77519c}.action:disabled{opacity:.42}.end{align-items:center}.end p{line-height:1.5;font-size:18px}.end .action{width:100%;flex:initial}button{cursor:pointer}button:active{transform:scale(.98)}@media(max-width:370px){.body{padding:14px}.option{min-height:88px}.emoji{font-size:33px}}
+</style></head><body><main><header><h1>🌙 Hádankový svět ✨</h1><p>Malá hra před spaním</p><div id="score">Vyber si, kdo bude hádat</div></header><section class="body" id="screen"></section></main>
+<script>
+const data={
+laura:[
+["Kdo dělá haf haf?","🐶","Pejsek",["🐶","Pejsek"],["🐱","Kočka"],["🐸","Žába"],["🐮","Kráva"]],
+["Co svítí na obloze přes den?","☀️","Sluníčko",["☀️","Sluníčko"],["🌙","Měsíc"],["⭐","Hvězda"],["☁️","Mrak"]],
+["Kdo má dlouhé uši a rád mrkev?","🥕","Zajíček",["🐰","Zajíček"],["🐶","Pes"],["🐻","Medvěd"],["🐟","Ryba"]],
+["Co si obuješ na nohy?","👣","Boty",["👟","Boty"],["🧢","Čepice"],["🧤","Rukavice"],["🧣","Šála"]],
+["Kdo dělá mňau?","🐾","Kočka",["🐈","Kočka"],["🐴","Kůň"],["🐔","Slepice"],["🐶","Pes"]],
+["Co padá z nebe v zimě a je studené?","❄️","Sníh",["❄️","Sníh"],["🍬","Bonbon"],["🍎","Jablko"],["🌷","Květina"]],
+["Kdo plave ve vodě a má ploutve?","🌊","Ryba",["🐟","Ryba"],["🐰","Zajíc"],["🦋","Motýl"],["🐔","Slepice"]],
+["Čím si čistíš zoubky?","🦷","Kartáček",["🪥","Kartáček"],["🥄","Lžíce"],["🔑","Klíč"],["🖍️","Pastelka"]],
+["Co si dáš pod hlavu při spaní?","😴","Polštář",["🛏️","Polštář"],["👟","Bota"],["🍉","Meloun"],["🧸","Medvídek"]],
+["Co nám dává kravička?","🐮","Mléko",["🥛","Mléko"],["🍞","Chléb"],["🍓","Jahody"],["🧃","Džus"]],
+["Co otevřeš nad hlavou, když prší?","🌧️","Deštník",["☂️","Deštník"],["🎈","Balónek"],["🪁","Drak"],["🧺","Košík"]],
+["Kdo má dlouhý chobot?","🌿","Slon",["🐘","Slon"],["🦊","Liška"],["🐝","Včela"],["🐭","Myška"]]
+],
+melinka:[
+["Na jaře jsem zelený a na podzim padám ze stromu. Co jsem?","🍂","List",["🍃","List"],["🍐","Hruška"],["🦋","Motýl"],["🧤","Rukavice"]],
+["Co potřebuje vodu a sluníčko, aby rostlo?","🌱","Květina",["🌷","Květina"],["🚗","Auto"],["📚","Kniha"],["🧸","Medvídek"]],
+["Mám čtyři nohy, ale nechodím. Sedíš na mně. Co jsem?","🤔","Židle",["🪑","Židle"],["🐴","Kůň"],["🐱","Kočka"],["🐶","Pes"]],
+["Z čeho se stane motýl?","🦋","Housenka",["🐛","Housenka"],["🐌","Šnek"],["🐜","Mravenec"],["🪱","Žížala"]],
+["Co má ručičky a ukazuje čas?","⏰","Hodiny",["🕰️","Hodiny"],["🧸","Medvídek"],["🤖","Robot"],["🎎","Panenka"]],
+["Co se objeví na obloze, když prší a svítí sluníčko?","🌦️","Duha",["🌈","Duha"],["☃️","Sněhulák"],["🌙","Měsíc"],["⭐","Hvězda"]],
+["Kdo si nosí domeček na zádech?","🏡","Šnek",["🐌","Šnek"],["🐰","Zajíček"],["🐑","Ovečka"],["🐝","Včela"]],
+["Máš pět bonbonů a dva sníš. Kolik zbude?","🍬","Tři",["3️⃣","Tři"],["2️⃣","Dva"],["5️⃣","Pět"],["1️⃣","Jeden"]],
+["Co se stane s vodou, když hodně mrzne?","🥶","Led",["🧊","Led"],["☁️","Mrak"],["🫧","Pěna"],["🌈","Duha"]],
+["Co zasadíš do země, aby vyrostla květina?","🌻","Semínko",["🌱","Semínko"],["🥄","Lžíci"],["🧸","Hračku"],["🪨","Kámen"]],
+["Když máš dvě kostky a jednu dostaneš, kolik jich máš?","🧱","Tři",["3️⃣","Tři"],["2️⃣","Dvě"],["4️⃣","Čtyři"],["5️⃣","Pět"]],
+["Kde hledáš rybičky: v rybníku, nebo na stromě?","🐟","Rybník",["🌊","Rybník"],["🌳","Strom"],["☁️","Mrak"],["🏠","Dům"]],
+["Které zvíře vyrábí med?","🍯","Včela",["🐝","Včela"],["🐈","Kočka"],["🐸","Žába"],["🦊","Liška"]],
+["Co si musíš vzít na hlavu při jízdě na kole?","🚲","Helma",["⛑️","Helma"],["🧤","Rukavice"],["👟","Boty"],["🧣","Šála"]],
+["Kde je největší tma: ve dne, nebo v noci?","🌃","V noci",["🌙","V noci"],["☀️","Ve dne"],["🌈","Při duze"],["🌻","Na louce"]]
+]};
+let kid=null,questions=[],index=0,points=0,attempts=0,done=false;
+const screen=document.querySelector('#screen'),score=document.querySelector('#score');
+const shuffle=a=>[...a].sort(()=>Math.random()-.5);
+const safe=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function home(){kid=null;score.textContent="Vyber si, kdo bude hádat";screen.innerHTML='<div class="welcome"><div class="hero">🧸🌟🦄</div><h2>Kdo dnes bude hádat?</h2><button class="pick" onclick="start(\'laura\')"><span class="face">🐣</span><span>Laurinka<small>Lehké hádanky · 3 roky</small></span></button><button class="pick" onclick="start(\'melinka\')"><span class="face">🦄</span><span>Melinka<small>Trochu přemýšlení · 5 let</small></span></button><p>Otázky může předčítat maminka nebo tatínek ❤️</p></div>'}
+function start(who){kid=who;questions=shuffle(data[who]).slice(0,10).map(q=>({text:q[0],hero:q[1],answer:q[2],options:shuffle(q.slice(3))}));index=0;points=0;render()}
+function render(){let q=questions[index];done=false;attempts=0;score.textContent='⭐ '+points+' hvězdiček · '+(kid==='laura'?'Laurinka':'Melinka');screen.innerHTML='<div class="eyebrow">Hádanka '+(index+1)+' z '+questions.length+'</div><div class="track"><div class="fill" style="width:'+index/questions.length*100+'%"></div></div><div class="hero">'+q.hero+'</div><div class="q">'+safe(q.text)+'</div><div class="options">'+q.options.map((o,i)=>'<button class="option" id="opt'+i+'" onclick="choose('+i+')"><span class="emoji">'+o[0]+'</span>'+safe(o[1])+'</button>').join('')+'</div><div class="note" id="note" aria-live="polite">Vyber správný obrázek 👆</div><div class="actions"><button class="action secondary" onclick="home()">🏠 Domů</button><button class="action secondary" onclick="hint()">💡 Nápověda</button><button class="action" id="next" onclick="next()" disabled>'+(index===9?'Dokončit 🏆':'Další ➜')+'</button></div>'}
+function choose(i){if(done)return;const q=questions[index],o=q.options[i],btn=document.getElementById('opt'+i),note=document.getElementById('note');if(o[1]===q.answer){done=true;points+=attempts?1:2;btn.classList.add('correct');document.querySelectorAll('.option').forEach(b=>b.disabled=true);note.textContent=attempts?'Správně! ⭐':'Výborně! Dvě hvězdičky! 🌟🌟';document.getElementById('next').disabled=false;score.textContent='⭐ '+points+' hvězdiček · '+(kid==='laura'?'Laurinka':'Melinka')}else{attempts++;btn.disabled=true;btn.classList.add('wrong');note.textContent='Nevadí, zkus další obrázek 💜'}}
+function hint(){if(done)return;document.getElementById('note').textContent='Nápověda: odpověď začíná na písmeno „'+questions[index].answer[0]+'“ 🔎'}
+function next(){if(!done)return;if(index===9){score.textContent='⭐ Celkem '+points+' hvězdiček';screen.innerHTML='<div class="end"><div class="hero">🏆🌟🎉</div><h2>Jsi hádanková hvězda!</h2><p>'+(kid==='laura'?'Laurinko':'Melinko')+', zvládla jsi deset hádanek a nasbírala <b>'+points+' hvězdiček</b>!</p><div class="hero">🌙🧸💤</div><p>Dobrou noc a krásné sny!</p><button class="action" onclick="start(kid)">Hrát znovu</button><button class="action secondary" onclick="home()">Vybrat hráčku</button></div>';return}index++;render()}
+home();
+</script></body></html>
