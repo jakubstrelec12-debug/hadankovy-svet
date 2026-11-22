@@ -24,7 +24,7 @@ function home(){
  h+='<button class="text-link" onclick="hsProfiles()">⚙ Spravovat profily</button>'+label('Téma');
  h+='<div class="topic-grid">'+Object.entries(cats).map(([key,name])=>'<button class="choice topic '+(theme===key?'active':'')+'" onclick="hsTopic(\''+key+'\')">'+icons[key]+' '+name+'</button>').join('')+'</div>';
  h+=label('Délka kola')+'<div class="mode-row">'+[5,10,15].map(n=>'<button class="choice '+(limit===n?'active':'')+'" onclick="hsLimit('+n+')">'+n+' hádanek</button>').join('')+'</div>';
- h+='<button class="action launch" '+(selected.length?'':'disabled')+' onclick="hsStart()">🧩 Začít hádanky →</button><button class="action adventure-launch" onclick="advHome()">🧭 Rodinná dobrodružství – výlety a úkoly →</button><div class="mode-row">'+btn('📊 Pokrok','hsProgress()','secondary')+btn('✏️ Vlastní','hsCustom()','secondary')+'</div>';
+ h+='<button class="action ai-launch" onclick="aiHome()">✨ AI výprava na konkrétní místo →</button><button class="action launch" '+(selected.length?'':'disabled')+' onclick="hsStart()">🧩 Začít hádanky →</button><button class="action adventure-launch" onclick="advHome()">🧭 Připravená rodinná dobrodružství →</button><div class="mode-row">'+btn('📊 Pokrok','hsProgress()','secondary')+btn('✏️ Vlastní','hsCustom()','secondary')+'</div>';
  h+='<p class="subtle">'+lib.length+' tematických otázek a 8 připravených výprav. Děti nemusí držet telefon.</p></div>';S.innerHTML=h;
 }
 function hsMode(v){mode=v;save('hs-mode-v1',v);home()}
