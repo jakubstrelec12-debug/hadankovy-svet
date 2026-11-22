@@ -1,4 +1,4 @@
-// Cloudflare Worker, server-side only. Never store OPENAI_API_KEY in the static website.
+// Cloudflare Worker, server-side only. Never store GEMINI_API_KEY in the static website.
 const ORIGIN='https://jakubstrelec12-debug.github.io';
 const HEADERS={'content-type':'application/json; charset=utf-8','cache-control':'no-store','access-control-allow-origin':ORIGIN,'vary':'Origin','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'Content-Type'};
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:HEADERS});
@@ -13,7 +13,7 @@ function validInput(data){
  const place=clean(data.place,140),context=clean(data.context,500),style=clean(data.style,30);
  const count=Number(data.count);
  if(place.length<3||![5,8,10,12,15].includes(count)||!['story','nature','treasure','explore'].includes(style))return null;
- const children=Array.isArray(data.children)?data.children.slice(0,6).map(p=>({name:clean(p?.name,28),age:Math.min(12,Math.max(2,Number(p?.age)||5)),level:p?.level==='easy'?'easy':'medium'})):[];
+ const children=Array.isArray(data.children)?data.children.slice(0,6).map(p=>({age:Math.min(12,Math.max(2,Number(p?.age)||5)),level:p?.level==='easy'?'easy':'medium'})):[];
  if(!children.length)return null;
  return {place,context,style,count,children};
 }
@@ -50,7 +50,7 @@ export default {
   if(new URL(request.url).pathname!=='/generate'||request.method!=='POST')return json({error:'Nenalezeno.'},404);
   if(origin!==ORIGIN)return json({error:'Nepovolený původ požadavku.'},403);
   if(Number(request.headers.get('content-length')||0)>12000)return json({error:'Příliš velký požadavek.'},413);
-  if(!env.OPENAI_API_KEY)return json({error:'Na serveru není nastaveno OPENAI_API_KEY.'},503);
+  if(!env.GEMINI_API_KEY)return json({error:'Na serveru není nastaveno GEMINI_API_KEY.'},503);
   let data;try{data=await request.json()}catch{return json({error:'Neplatné JSON.'},400)}
   const input=validInput(data);
   if(!input)return json({error:'Zkontrolujte cíl výpravy, počet úkolů a profily dětí.'},400);
@@ -71,15 +71,31 @@ export default {
   const abort=new AbortController();const timer=setTimeout(()=>abort.abort(),45000);
   let result;
   try{
-   const response=await fetch('https://api.openai.com/v1/responses',{
+   const model=(env.GEMINI_MODEL||'gemini-3.1-flash-lite').trim();
+   // Allow a fixed list rather than arbitrary model identifiers in a URL.
+   if(!['gemini-3.1-flash-lite','gemini-3.5-flash-lite'].includes(model))return json({error:'Nastavený Gemini model není povolen.'},503);
+   const apiUrl='https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent';
+   const response=await fetch(apiUrl,{
     method:'POST',signal:abort.signal,
-    headers:{Authorization:'Bearer '+env.OPENAI_API_KEY,'Content-Type':'application/json'},
-    body:JSON.stringify({model:env.OPENAI_MODEL||'gpt-4.1-mini',store:false,max_output_tokens:3500,instructions:system,input:prompt,text:{format:{type:'json_schema',name:'family_adventure',strict:true,schema}}})
+    headers:{'x-goog-api-key':env.GEMINI_API_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({
+     systemInstruction:{parts:[{text:system}]},
+     contents:[{role:'user',parts:[{text:prompt}]}],
+     generationConfig:{
+      responseMimeType:'application/json',
+      responseJsonSchema:schema,
+      maxOutputTokens:4096,
+      temperature:0.65
+     }
+    })
    });
    const body=await response.json();
-   if(!response.ok)return json({error:'Generování nebylo dostupné ('+response.status+'). Zkuste to později.'},502);
-   const content=(body.output||[]).flatMap(x=>x.content||[]).find(x=>x.type==='output_text')?.text||body.output_text;
-   if(!content)throw Error('empty');
+   if(!response.ok){
+    const status=response.status===429?429:502;
+    return json({error:response.status===429?'Gemini překročilo bezplatný limit požadavků. Zkuste to později.':'Gemini momentálně neodpovídá ('+response.status+'). Ověřte model a dostupnost bezplatného tarifu.'},status);
+   }
+   const content=(body.candidates||[]).flatMap(x=>x.content?.parts||[]).filter(x=>typeof x.text==='string').map(x=>x.text).join('');
+   if(!content)throw Error('empty Gemini content');
    result=JSON.parse(content);
   }catch(err){return json({error:'AI se nepodařilo získat odpověď. Zkuste to znovu.'},502)}
   finally{clearTimeout(timer)}
